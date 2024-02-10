@@ -21,7 +21,7 @@ from .TftpPacketTypes import *
 from .TftpShared import *
 from .TftpStates import *
 
-log = logging.getLogger("tftpy.TftpContext")
+log = logging.getLogger("partftpy.TftpContext")
 
 ###############################################################################
 # Utility classes

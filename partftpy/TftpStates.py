@@ -18,7 +18,7 @@ import time
 from .TftpPacketTypes import *
 from .TftpShared import *
 
-log = logging.getLogger("tftpy.TftpStates")
+log = logging.getLogger("partftpy.TftpStates")
 
 ###############################################################################
 # State classes

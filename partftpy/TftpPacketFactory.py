@@ -9,7 +9,7 @@ import logging
 from .TftpPacketTypes import *
 from .TftpShared import *
 
-log = logging.getLogger("tftpy.TftpPacketFactory")
+log = logging.getLogger("partftpy.TftpPacketFactory")
 
 
 class TftpPacketFactory:

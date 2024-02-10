@@ -1,5 +1,5 @@
 # vim: ts=4 sw=4 et ai:
-"""This module holds all objects shared by all other modules in tftpy."""
+"""This module holds all objects shared by all other modules in partftpy."""
 
 
 MIN_BLKSIZE = 8

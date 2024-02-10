@@ -11,7 +11,7 @@ from .TftpContexts import TftpContextClientDownload, TftpContextClientUpload
 from .TftpPacketTypes import *
 from .TftpShared import *
 
-log = logging.getLogger("tftpy.TftpClient")
+log = logging.getLogger("partftpy.TftpClient")
 
 
 class TftpClient(TftpSession):

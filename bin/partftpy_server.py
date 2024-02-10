@@ -6,9 +6,9 @@ import logging
 import sys
 from optparse import OptionParser
 
-import tftpy
+import partftpy
 
-log = logging.getLogger("tftpy")
+log = logging.getLogger("partftpy")
 log.setLevel(logging.INFO)
 
 # console handler
@@ -73,10 +73,10 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    server = tftpy.TftpServer(options.root)
+    server = partftpy.TftpServer(options.root)
     try:
         server.listen(options.ip, options.port)
-    except tftpy.TftpException as err:
+    except partftpy.TftpException as err:
         sys.stderr.write("%s\n" % str(err))
         sys.exit(1)
     except KeyboardInterrupt:

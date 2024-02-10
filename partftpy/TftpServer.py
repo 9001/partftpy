@@ -18,7 +18,7 @@ from .TftpPacketFactory import TftpPacketFactory
 from .TftpPacketTypes import *
 from .TftpShared import *
 
-log = logging.getLogger("tftpy.TftpServer")
+log = logging.getLogger("partftpy.TftpServer")
 
 
 class TftpServer(TftpSession):

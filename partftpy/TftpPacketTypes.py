@@ -9,7 +9,7 @@ import sys
 
 from .TftpShared import *
 
-log = logging.getLogger("tftpy.TftpPacketTypes")
+log = logging.getLogger("partftpy.TftpPacketTypes")
 
 
 class TftpSession:
