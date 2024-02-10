@@ -1,4 +1,7 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """This module implements all contexts for state handling during uploads and
 downloads, the main interface to which being the TftpContext base class.
 
@@ -28,7 +31,7 @@ log = logging.getLogger("partftpy.TftpContext")
 ###############################################################################
 
 
-class TftpMetrics:
+class TftpMetrics(object):
     """A class representing metrics of the transfer."""
 
     def __init__(self):
@@ -78,7 +81,7 @@ class TftpMetrics:
 ###############################################################################
 
 
-class TftpContext:
+class TftpContext(object):
     """The base class of the contexts."""
 
     def __init__(self, host, port, timeout, retries=DEF_TIMEOUT_RETRIES, localip=""):
@@ -247,7 +250,7 @@ class TftpContextServer(TftpContext):
         self.upload_open = upload_open
 
     def __str__(self):
-        return f"{self.host}:{self.port} {self.state}"
+        return "%s:%s %s" % (self.host, self.port, self.state)
 
     def start(self, buffer):
         """
@@ -314,7 +317,7 @@ class TftpContextClientUpload(TftpContext):
         )
 
     def __str__(self):
-        return f"{self.host}:{self.port} {self.state}"
+        return "%s:%s %s" % (self.host, self.port, self.state)
 
     def start(self):
         log.info("Sending tftp upload request to %s" % self.host)
@@ -400,7 +403,7 @@ class TftpContextClientDownload(TftpContext):
         )
 
     def __str__(self):
-        return f"{self.host}:{self.port} {self.state}"
+        return "%s:%s %s" % (self.host, self.port, self.state)
 
     def start(self):
         """Initiate the download."""

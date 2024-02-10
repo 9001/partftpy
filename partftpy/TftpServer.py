@@ -1,4 +1,7 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """This module implements the TFTP Server functionality. Instantiate an
 instance of the server, and then run the listen() method to listen for client
 requests. Logging is performed via a standard logging object set in
@@ -58,7 +61,7 @@ class TftpServer(TftpSession):
         for name in "dyn_file_func", "upload_open":
             attr = getattr(self, name)
             if attr and not callable(attr):
-                raise TftpException(f"{name} supplied, but it is not callable.")
+                raise TftpException("%s supplied, but it is not callable." % (name,))
         if os.path.exists(self.root):
             log.debug("tftproot %s does exist", self.root)
             if not os.path.isdir(self.root):
@@ -92,7 +95,7 @@ class TftpServer(TftpSession):
         # listenip = listenip if listenip else '0.0.0.0'
         if not listenip:
             listenip = "0.0.0.0"
-        log.info(f"Server requested on ip {listenip}, port {listenport}")
+        log.info("Server requested on ip %s, port %s" % (listenip, listenport))
         try:
             # FIXME - sockets should be non-blocking
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -163,7 +166,7 @@ class TftpServer(TftpSession):
 
                     # Forge a session key based on the client's IP and port,
                     # which should safely work through NAT.
-                    key = f"{raddress}:{rport}"
+                    key = "%s:%s" % (raddress, rport)
 
                     if key not in self.sessions:
                         log.debug(

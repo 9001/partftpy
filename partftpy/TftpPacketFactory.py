@@ -1,4 +1,7 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """This module implements the TftpPacketFactory class, which can take a binary
 buffer, and return the appropriate TftpPacket object to represent it, via the
 parse() method."""
@@ -12,7 +15,7 @@ from .TftpShared import *
 log = logging.getLogger("partftpy.TftpPacketFactory")
 
 
-class TftpPacketFactory:
+class TftpPacketFactory(object):
     """This class generates TftpPacket objects. It is responsible for parsing
     raw buffers off of the wire and returning objects representing them, via
     the parse() method."""

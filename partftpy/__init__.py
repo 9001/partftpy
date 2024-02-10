@@ -1,17 +1,13 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """
 This library implements the tftp protocol, based on rfc 1350.
 http://www.faqs.org/rfcs/rfc1350.html
 """
 
-import sys
-
 import pkg_resources
-
-# Make sure that this is at least Python 3
-required_version = (3, 0)
-if sys.version_info < required_version:
-    raise ImportError("Requires at least Python 3.0")
 
 from . import __name__ as pkg_name
 

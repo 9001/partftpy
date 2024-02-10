@@ -1,4 +1,7 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """This module implements the packet types of TFTP itself, and the
 corresponding encode and decode methods for them."""
 
@@ -12,7 +15,7 @@ from .TftpShared import *
 log = logging.getLogger("partftpy.TftpPacketTypes")
 
 
-class TftpSession:
+class TftpSession(object):
     """This class is the base class for the tftp client and server. Any shared
     code should be in this class."""
 
@@ -20,7 +23,7 @@ class TftpSession:
     pass
 
 
-class TftpPacketWithOptions:
+class TftpPacketWithOptions(object):
     """This class exists to permit some TftpPacket subclasses to share code
     regarding options handling. It does not inherit from TftpPacket, as the
     goal is just to share code here, and not cause diamond inheritance."""
@@ -99,7 +102,7 @@ class TftpPacketWithOptions:
         return options
 
 
-class TftpPacket:
+class TftpPacket(object):
     """This class is the parent class of all tftp packet classes. It is an
     abstract class, providing an interface, and should not be instantiated
     directly."""

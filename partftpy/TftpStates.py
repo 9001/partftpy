@@ -1,4 +1,7 @@
+# coding: utf-8
 # vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 """This module implements all state handling during uploads and downloads, the
 main interface to which being the TftpState base class.
 
@@ -25,7 +28,7 @@ log = logging.getLogger("partftpy.TftpStates")
 ###############################################################################
 
 
-class TftpState:
+class TftpState(object):
     """The base class for the states."""
 
     def __init__(self, context):
@@ -48,7 +51,7 @@ class TftpState:
                 # Set options to OACK options
                 self.context.options = pkt.options
                 for key in self.context.options:
-                    log.info(f"    {key} = {self.context.options[key]}")
+                    log.info("    %s = %s", key, self.context.options[key])
             else:
                 log.error("Failed to negotiate options")
                 raise TftpException("Failed to negotiate options")
@@ -168,7 +171,7 @@ class TftpState:
     def resendLast(self):
         """Resend the last sent packet due to a timeout."""
         assert( self.context.last_pkt is not None )
-        log.warning(f"Resending packet {self.context.last_pkt} on sessions {self}")
+        log.warning("Resending packet %s on sessions %s", self.context.last_pkt, self)
         self.context.metrics.resent_bytes += len(self.context.last_pkt.buffer)
         self.context.metrics.add_dup(self.context.last_pkt)
         sendto_port = self.context.tidport
@@ -335,7 +338,7 @@ class TftpStateServerRecvRRQ(TftpServerState):
         else:
             log.warning("File not found: %s", path)
             self.sendError(TftpErrors.FileNotFound)
-            raise TftpException(f"File not found: {path}")
+            raise TftpException("File not found: %s" % (path,))
 
         # Options negotiation.
         if sendoack and "tsize" in self.context.options:
@@ -630,7 +633,7 @@ class TftpStateSentRRQ(TftpState):
             if pkt.errorcode == TftpErrors.FileNotFound:
                 raise TftpFileNotFoundError("File not found")
             else:
-                raise TftpException(f"Received ERR from server: {pkt}")
+                raise TftpException("Received ERR from server: %s" % (pkt,))
 
         else:
             self.sendError(TftpErrors.IllegalTftpOp)

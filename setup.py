@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+# coding: utf-8
+# vim: ts=4 sw=4 et ai:
+from __future__ import print_function, unicode_literals
+
 # vim: ts=4 sw=4 et ai:
 import os
 
@@ -27,7 +30,7 @@ if __name__ == "__main__":
             "setuptools_scm[toml]",
             "setuptools_scm_git_archive >= 1.0",
         ],
-        python_requires=">=3.6",
+        python_requires=">=2.7",
         classifiers=[
             "Programming Language :: Python :: 3",
             "Development Status :: 4 - Beta",
