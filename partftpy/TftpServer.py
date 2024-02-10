@@ -184,7 +184,7 @@ class TftpServer(TftpSession):
                             self.sessions[key].start(buffer)
                         except TftpTimeoutExpectACK:
                             self.sessions[key].timeout_expectACK = True
-                        except TftpException as err:
+                        except Exception as err:
                             deletion_list.append(key)
                             log.error(
                                 "Fatal exception thrown from session %s: %s"
@@ -212,7 +212,7 @@ class TftpServer(TftpSession):
                                     deletion_list.append(key)
                             except TftpTimeoutExpectACK:
                                 self.sessions[key].timeout_expectACK = True
-                            except TftpException as err:
+                            except Exception as err:
                                 deletion_list.append(key)
                                 log.error(
                                     "Fatal exception thrown from session %s: %s"
