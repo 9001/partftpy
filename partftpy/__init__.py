@@ -7,17 +7,12 @@ This library implements the tftp protocol, based on rfc 1350.
 http://www.faqs.org/rfcs/rfc1350.html
 """
 
-import pkg_resources
+VERSION = (0, 1, 0)
+BUILD_DT = (2024, 2, 10)
 
-from . import __name__ as pkg_name
+S_VERSION = ".".join(map(str, VERSION))
+S_BUILD_DT = "{0:04d}-{1:02d}-{2:02d}".format(*BUILD_DT)
 
+__version__ = S_VERSION
+__build_dt__ = S_BUILD_DT
 
-def _get_version():
-    try:
-        pkg_version = pkg_resources.get_distribution(pkg_name).version
-    except pkg_resources.DistributionNotFound:
-        pkg_version = None
-    return pkg_version
-
-
-__version__ = _get_version()
