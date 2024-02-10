@@ -7,7 +7,7 @@ This library implements the tftp protocol, based on rfc 1350.
 http://www.faqs.org/rfcs/rfc1350.html
 """
 
-VERSION = (0, 1, 0)
+VERSION = (0, 2, 0)
 BUILD_DT = (2024, 2, 10)
 
 S_VERSION = ".".join(map(str, VERSION))
