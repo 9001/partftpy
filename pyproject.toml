@@ -1,5 +1,60 @@
+[project]
+name = "partftpy"
+description = "tftpd module for copyparty"
+readme = "README.md"
+authors = [{ name = "ed", email = "partftpy@ocv.me" }]
+license = { text = "MIT" }
+requires-python = ">=2.7"
+dependencies = []
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Environment :: No Input/Output (Daemon)",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Topic :: Internet",
+]
+
+[project.urls]
+"Source Code" = "http://github.com/9001/partftpy"
+"Bug Tracker" = "http://github.com/9001/partftpy/issues"
+
+[project.scripts]
+"partftpy_client" = "partftpy.bin.partftpy_client:main"
+"partftpy_server" = "partftpy.bin.partftpy_server:main"
+
+# =====================================================================
+
+[tool.hatch.version]
+source = "code"
+path = "partftpy/__init__.py"
+
+[tool.setuptools.dynamic]
+version = { attr = "partftpy.__init__.__version__" }
+
+# =====================================================================
+
 [build-system]
-requires = ["setuptools", "wheel", "setuptools_scm[toml]"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
