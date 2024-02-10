@@ -91,11 +91,8 @@ class TftpServer(TftpSession):
         supply a different socket timeout value, if desired."""
         tftp_factory = TftpPacketFactory()
 
-        # Don't use new 2.5 ternary operator yet
-        # listenip = listenip if listenip else '0.0.0.0'
-        if not listenip:
-            listenip = "0.0.0.0"
-        log.info("Server requested on ip %s, port %s" % (listenip, listenport))
+        listenip = listenip or "0.0.0.0"
+        log.info("listening @ %s:%s" % (listenip, listenport))
         try:
             # FIXME - sockets should be non-blocking
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -107,7 +104,7 @@ class TftpServer(TftpSession):
 
         self.is_running.set()
 
-        log.info("Starting receive loop...")
+        log.debug("Starting receive loop...")
         while True:
             log.debug("shutdown_immediately is %s" % self.shutdown_immediately)
             log.debug("shutdown_gracefully is %s" % self.shutdown_gracefully)
@@ -195,9 +192,10 @@ class TftpServer(TftpSession):
                         log.warning(
                             "received traffic on main socket for existing session??"
                         )
-                    log.info("Currently handling these sessions:")
+                    t = "Active sessions:"
                     for session_key, session in list(self.sessions.items()):
-                        log.info("    %s" % session)
+                        t += "\n  %s" % (session,)
+                    log.info(t)
 
                 else:
                     # Must find the owner of this traffic.
@@ -208,7 +206,7 @@ class TftpServer(TftpSession):
                             try:
                                 self.sessions[key].cycle()
                                 if self.sessions[key].state is None:
-                                    log.info("Successful transfer.")
+                                    log.debug("Successful transfer.")
                                     deletion_list.append(key)
                             except TftpTimeoutExpectACK:
                                 self.sessions[key].timeout_expectACK = True
@@ -243,22 +241,20 @@ class TftpServer(TftpSession):
 
             log.debug("Iterating deletion list.")
             for key in deletion_list:
-                log.info("")
-                log.info("Session %s complete" % key)
+                log.debug("Session %s complete" % key)
+                t = "%s done: " % (key,)
                 if key in self.sessions:
                     log.debug("Gathering up metrics from session before deleting")
                     self.sessions[key].end()
-                    metrics = self.sessions[key].metrics
-                    if metrics.duration == 0:
-                        log.info("Duration too short, rate undetermined")
+                    st = self.sessions[key].metrics
+                    if st.duration == 0:
+                        t += "Duration too short, rate undetermined; "
                     else:
-                        log.info(
-                            "Transferred %d bytes in %.2f seconds"
-                            % (metrics.bytes, metrics.duration)
-                        )
-                        log.info("Average rate: %.2f kbps" % metrics.kbps)
-                    log.info("%.2f bytes in resent data" % metrics.resent_bytes)
-                    log.info("%d duplicate packets" % metrics.dupcount)
+                        t += "%d byte, %.2f sec, %.2f kbps, " % (st.bytes, st.duration, st.kbps)
+
+                    t += "%d bytes resent, %d dupe pkts" % (st.resent_bytes, st.dupcount)
+                    log.info(t)
+
                     log.debug("Deleting session %s" % key)
                     del self.sessions[key]
                     log.debug("Session list is now %s" % self.sessions)

@@ -131,7 +131,7 @@ class TftpState(object):
         log.debug("In sendACK, passed blocknumber is %s", blocknumber)
         if blocknumber is None:
             blocknumber = self.context.next_block
-        log.info("Sending ack to block %d" % blocknumber)
+        log.debug("Sending ack to block %d" % blocknumber)
         ackpkt = TftpPacketACK()
         ackpkt.blocknumber = blocknumber
         # Testing hook
@@ -189,7 +189,7 @@ class TftpState(object):
     def handleDat(self, pkt):
         """This method handles a DAT packet during a client download, or a
         server upload."""
-        log.info("Handling DAT packet - block %d" % pkt.blocknumber)
+        log.debug("Handling DAT packet - block %d" % pkt.blocknumber)
         log.debug("Expecting block %s", self.context.next_block)
         if pkt.blocknumber == self.context.next_block:
             log.debug("Good, received block %d in sequence", pkt.blocknumber)
@@ -248,7 +248,7 @@ class TftpServerState(TftpState):
         sendoack = False
         if not self.context.tidport:
             self.context.tidport = rport
-            log.info("Setting tidport to %s" % rport)
+            log.debug("Setting tidport to %s" % rport)
 
         log.debug("Setting default options, blksize")
         self.context.options = {"blksize": DEF_BLKSIZE}
@@ -300,7 +300,7 @@ class TftpServerState(TftpState):
         self.full_path = os.path.abspath(full_path)
         log.debug("full_path is %s", full_path)
         if self.full_path.startswith(os.path.normpath(self.context.root) + os.sep):
-            log.info("requested file is in the server root - good")
+            log.debug("requested file is in the server root - good")
         else:
             log.warning("requested file is not within the server root - bad")
             self.sendError(TftpErrors.IllegalTftpOp)
