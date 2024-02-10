@@ -43,6 +43,7 @@ class TftpClient(TftpSession):
         packethook=None,
         timeout=SOCK_TIMEOUT,
         retries=DEF_TIMEOUT_RETRIES,
+        ports=None,
     ):
         """This method initiates a tftp download from the configured remote
         host, requesting the filename passed. It writes the file to output,
@@ -70,6 +71,7 @@ class TftpClient(TftpSession):
             timeout,
             retries=retries,
             localip=self.localip,
+            ports=ports
         )
         self.context.start()
         # Download happens here
@@ -97,6 +99,7 @@ class TftpClient(TftpSession):
         packethook=None,
         timeout=SOCK_TIMEOUT,
         retries=DEF_TIMEOUT_RETRIES,
+        ports=None,
     ):
         """This method initiates a tftp upload to the configured remote host,
         uploading the filename passed. It reads the file from input, which
@@ -121,6 +124,7 @@ class TftpClient(TftpSession):
             timeout,
             retries=retries,
             localip=self.localip,
+            ports=ports,
         )
         self.context.start()
         # Upload happens here

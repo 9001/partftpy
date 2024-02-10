@@ -85,6 +85,7 @@ class TftpServer(TftpSession):
         listenport=DEF_TFTP_PORT,
         timeout=SOCK_TIMEOUT,
         retries=DEF_TIMEOUT_RETRIES,
+        ports=None,
     ):
         """Start a server listening on the supplied interface and port. This
         defaults to INADDR_ANY (all interfaces) and UDP port 69. You can also
@@ -177,6 +178,7 @@ class TftpServer(TftpSession):
                             self.dyn_file_func,
                             self.upload_open,
                             retries=retries,
+                            ports=ports,
                         )
                         try:
                             self.sessions[key].start(buffer)
