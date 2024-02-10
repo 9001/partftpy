@@ -17,7 +17,7 @@ test:
 	PYTHONIOENCODING=$(PYTHONIOENCODING) PYTHONPATH=$(PYTHONPATH) $(PY) t/test.py $(TESTCASE) 2>&1 | tee test.log
 
 clean:
-	rm -rf dist src tftpy-doc* MANIFEST
+	rm -rf dist src partftpy-doc* MANIFEST
 
 flakes:
-	pyflakes bin/*.py tftpy/*.py
+	pyflakes bin/*.py partftpy/*.py
