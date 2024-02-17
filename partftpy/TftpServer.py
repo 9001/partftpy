@@ -249,10 +249,11 @@ class TftpServer(TftpSession):
                     log.debug("Gathering up metrics from session before deleting")
                     self.sessions[key].end()
                     st = self.sessions[key].metrics
+                    spd = st.kbps / 8192.0
                     if st.duration == 0:
                         t += "Duration too short, rate undetermined; "
                     else:
-                        t += "%d byte, %.2f sec, %.2f kbps, " % (st.bytes, st.duration, st.kbps)
+                        t += "%d byte, %.2f sec, %.4f MiB/s, " % (st.bytes, st.duration, spd)
 
                     t += "%d bytes resent, %d dupe pkts" % (st.resent_bytes, st.dupcount)
                     log.info(t)

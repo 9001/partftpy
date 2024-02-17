@@ -77,20 +77,17 @@ class TftpClient(TftpSession):
         # Download happens here
         self.context.end()
 
-        metrics = self.context.metrics
+        st = self.context.metrics
+        spd = st.kbps / 8192.0
 
-        log.info("")
-        log.info("Download complete.")
-        if metrics.duration == 0:
-            log.info("Duration too short, rate undetermined")
+        t = "DL done: "
+        if st.duration == 0:
+            t += "Duration too short, rate undetermined"
         else:
-            log.info(
-                "Downloaded %.2f bytes in %.2f seconds"
-                % (metrics.bytes, metrics.duration)
-            )
-            log.info("Average rate: %.2f kbps" % metrics.kbps)
-        log.info("%.2f bytes in resent data" % metrics.resent_bytes)
-        log.info("Received %d duplicate packets" % metrics.dupcount)
+            t += "%d byte, %.2f sec, %.4f MiB/s, " % (st.bytes, st.duration, spd)
+
+        t += "%d bytes resent, %d dupe pkts" % (st.resent_bytes, st.dupcount)
+        log.info(t)
 
     def upload(
         self,
@@ -130,16 +127,14 @@ class TftpClient(TftpSession):
         # Upload happens here
         self.context.end()
 
-        metrics = self.context.metrics
+        st = self.context.metrics
+        spd = st.kbps / 8192.0
 
-        log.info("")
-        log.info("Upload complete.")
-        if metrics.duration == 0:
-            log.info("Duration too short, rate undetermined")
+        t = "Upload done: "
+        if st.duration == 0:
+            t += "Duration too short, rate undetermined; "
         else:
-            log.info(
-                "Uploaded %d bytes in %.2f seconds" % (metrics.bytes, metrics.duration)
-            )
-            log.info("Average rate: %.2f kbps" % metrics.kbps)
-        log.info("%.2f bytes in resent data" % metrics.resent_bytes)
-        log.info("Resent %d packets" % metrics.dupcount)
+            t += "%d byte, %.2f sec, %.4f MiB/s, " % (st.bytes, st.duration, spd)
+
+        t += "%d bytes resent, %d dupe pkts" % (st.resent_bytes, st.dupcount)
+        log.info(t)

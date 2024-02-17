@@ -58,10 +58,10 @@ class TftpMetrics(object):
         self.duration = self.end_time - self.start_time
         if self.duration == 0:
             self.duration = 1
-        log.debug("TftpMetrics.compute: duration is %s", self.duration)
         self.bps = (self.bytes * 8.0) / self.duration
         self.kbps = self.bps / 1024.0
-        log.debug("TftpMetrics.compute: kbps is %s", self.kbps)
+        spd = self.kbps / 8192.0
+        log.debug("TftpMetrics.compute: %ss, %.4f MiB/s", self.duration, spd)
         for key in self.dups:
             self.dupcount += self.dups[key]
 
