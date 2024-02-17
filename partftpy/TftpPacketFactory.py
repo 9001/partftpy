@@ -34,9 +34,9 @@ class TftpPacketFactory(object):
         """This method is used to parse an existing datagram into its
         corresponding TftpPacket object. The buffer is the raw bytes off of
         the network."""
-        log.debug("parsing a %d byte packet" % len(buffer))
+        log.debug("parsing a %d byte packet", len(buffer))
         (opcode,) = struct.unpack("!H", buffer[:2])
-        log.debug("opcode is %d" % opcode)
+        log.debug("opcode is %d", opcode)
         packet = self.__create(opcode)
         packet.buffer = buffer
         return packet.decode()
@@ -44,7 +44,8 @@ class TftpPacketFactory(object):
     def __create(self, opcode):
         """This method returns the appropriate class object corresponding to
         the passed opcode."""
-        tftpassert(opcode in self.classes, "Unsupported opcode: %d" % opcode)
+        if opcode not in self.classes:
+            raise Exception("Unsupported opcode: %d" % opcode)
 
         packet = self.classes[opcode]()
 

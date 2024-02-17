@@ -50,8 +50,8 @@ class TftpState(object):
                 log.info("Successful negotiation of options")
                 # Set options to OACK options
                 self.context.options = pkt.options
-                for key in self.context.options:
-                    log.info("    %s = %s", key, self.context.options[key])
+                for k, v in self.context.options.items():
+                    log.info("    %s = %s", k, v)
             else:
                 log.error("Failed to negotiate options")
                 raise TftpException("Failed to negotiate options")
@@ -69,14 +69,14 @@ class TftpState(object):
                 # Make sure it's valid.
                 if int(options[option]) > MAX_BLKSIZE:
                     log.info(
-                        "Client requested blksize greater than %d "
-                        "setting to maximum" % MAX_BLKSIZE
+                        "Client requested blksize greater than %d; setting to maximum",
+                        MAX_BLKSIZE
                     )
                     accepted_options[option] = MAX_BLKSIZE
                 elif int(options[option]) < MIN_BLKSIZE:
                     log.info(
-                        "Client requested blksize less than %d "
-                        "setting to minimum" % MIN_BLKSIZE
+                        "Client requested blksize less than %d; setting to minimum",
+                        MIN_BLKSIZE
                     )
                     accepted_options[option] = MIN_BLKSIZE
                 else:
@@ -85,7 +85,7 @@ class TftpState(object):
                 log.debug("tsize option is set")
                 accepted_options["tsize"] = 0
             else:
-                log.info("Dropping unsupported option '%s'" % option)
+                log.info("Dropping unsupported option '%s'", option)
         log.debug("Returning these accepted options: %s", accepted_options)
         return accepted_options
 
@@ -100,11 +100,11 @@ class TftpState(object):
             log.debug("Deliberately delaying 10 seconds...")
             time.sleep(10)
         dat = None
-        blksize = self.context.getBlocksize()
+        blksize = self.context.options["blksize"]
         buffer = self.context.fileobj.read(blksize)
         log.debug("Read %d bytes into buffer", len(buffer))
         if len(buffer) < blksize:
-            log.info("Reached EOF on file %s" % self.context.file_to_transfer)
+            log.info("Reached EOF on file %s", self.context.file_to_transfer)
             finished = True
         dat = TftpPacketDAT()
         dat.data = buffer
@@ -131,7 +131,7 @@ class TftpState(object):
         log.debug("In sendACK, passed blocknumber is %s", blocknumber)
         if blocknumber is None:
             blocknumber = self.context.next_block
-        log.debug("Sending ack to block %d" % blocknumber)
+        log.debug("Sending ack to block %d", blocknumber)
         ackpkt = TftpPacketACK()
         ackpkt.blocknumber = blocknumber
         # Testing hook
@@ -189,7 +189,7 @@ class TftpState(object):
     def handleDat(self, pkt):
         """This method handles a DAT packet during a client download, or a
         server upload."""
-        log.debug("Handling DAT packet - block %d" % pkt.blocknumber)
+        log.debug("Handling DAT packet - block %d", pkt.blocknumber)
         log.debug("Expecting block %s", self.context.next_block)
         if pkt.blocknumber == self.context.next_block:
             log.debug("Good, received block %d in sequence", pkt.blocknumber)
@@ -201,7 +201,7 @@ class TftpState(object):
             self.context.fileobj.write(pkt.data)
             self.context.metrics.bytes += len(pkt.data)
             # Check for end-of-file, any less than full data packet.
-            if len(pkt.data) < self.context.getBlocksize():
+            if len(pkt.data) < self.context.options["blksize"]:
                 log.info("End of file detected")
                 return None
 
@@ -210,7 +210,7 @@ class TftpState(object):
                 log.warning("There is no block zero!")
                 self.sendError(TftpErrors.IllegalTftpOp)
                 raise TftpException("There is no block zero!")
-            log.warning("Dropping duplicate block %d" % pkt.blocknumber)
+            log.warning("Dropping duplicate block %d", pkt.blocknumber)
             self.context.metrics.add_dup(pkt)
             log.debug("ACKing block %d again, just in case", pkt.blocknumber)
             self.sendACK(pkt.blocknumber)
@@ -248,7 +248,7 @@ class TftpServerState(TftpState):
         sendoack = False
         if not self.context.tidport:
             self.context.tidport = rport
-            log.debug("Setting tidport to %s" % rport)
+            log.debug("Setting tidport to %s", rport)
 
         log.debug("Setting default options, blksize")
         self.context.options = {"blksize": DEF_BLKSIZE}
@@ -269,8 +269,11 @@ class TftpServerState(TftpState):
         if self.context.host != raddress or self.context.port != rport:
             self.sendError(TftpErrors.UnknownTID)
             log.error(
-                "Expected traffic from %s:%s but received it from %s:%s instead."
-                % (self.context.host, self.context.port, raddress, rport)
+                "Expected traffic from %s:%s but received it from %s:%s instead.",
+                self.context.host,
+                self.context.port,
+                raddress,
+                rport
             )
             # FIXME: increment an error count?
             # Return same state, we're still waiting for valid traffic.
@@ -320,7 +323,7 @@ class TftpStateServerRecvRRQ(TftpServerState):
         log.debug("In TftpStateServerRecvRRQ.handle")
         sendoack = self.serverInitial(pkt, raddress, rport)
         path = self.full_path
-        log.info("Opening file %s for reading" % path)
+        log.info("Opening file %s for reading", path)
         if os.path.exists(path):
             # Note: Open in binary mode for win32 portability, since win32
             # blows.
@@ -404,12 +407,12 @@ class TftpStateServerRecvWRQ(TftpServerState):
             else:
                 self.context.fileobj = f
         else:
-            log.info("Opening file %s for writing" % path)
+            log.info("Opening file %s for writing", path)
             if os.path.exists(path):
                 # FIXME: correct behavior?
                 log.warning(
-                    "File %s exists already, overwriting..."
-                    % (self.context.file_to_transfer)
+                    "File %s exists already, overwriting...",
+                    self.context.file_to_transfer
                 )
             # FIXME: I think we should upload to a temp file and not overwrite
             # the existing file until the file is successfully uploaded.
@@ -463,7 +466,7 @@ class TftpStateExpectACK(TftpState):
     def handle(self, pkt, raddress, rport):
         """Handle a packet, hopefully an ACK since we just sent a DAT."""
         if isinstance(pkt, TftpPacketACK):
-            log.debug("Received ACK for packet %d" % pkt.blocknumber)
+            log.debug("Received ACK for packet %d", pkt.blocknumber)
             # Is this an ack to the one we just sent?
             if self.context.next_block == pkt.blocknumber:
                 if self.context.pending_complete:
@@ -476,7 +479,7 @@ class TftpStateExpectACK(TftpState):
                     self.context.pending_complete = self.sendDAT()
 
             elif pkt.blocknumber < self.context.next_block:
-                log.warning("Received duplicate ACK for block %d" % pkt.blocknumber)
+                log.warning("Received duplicate ACK for block %d", pkt.blocknumber)
                 self.context.metrics.add_dup(pkt)
                 if self.context.metrics.last_dat_time > 0:
                     if time.time() - self.context.metrics.last_dat_time > self.context.timeout:
@@ -490,10 +493,10 @@ class TftpStateExpectACK(TftpState):
                 self.context.metrics.errors += 1
             return self
         elif isinstance(pkt, TftpPacketERR):
-            log.error("Received ERR packet from peer: %s" % str(pkt))
+            log.error("Received ERR packet from peer: %s", str(pkt))
             raise TftpException("Received ERR packet from peer: %s" % str(pkt))
         else:
-            log.warning("Discarding unsupported packet: %s" % str(pkt))
+            log.warning("Discarding unsupported packet: %s", str(pkt))
             return self
 
 
@@ -560,7 +563,7 @@ class TftpStateSentWRQ(TftpState):
                 log.debug("Changing state to TftpStateExpectACK")
                 return TftpStateExpectACK(self.context)
             else:
-                log.warning("Discarding ACK to block %s" % pkt.blocknumber)
+                log.warning("Discarding ACK to block %s", pkt.blocknumber)
                 log.debug("Still waiting for valid response from server")
                 return self
 
@@ -590,7 +593,7 @@ class TftpStateSentRRQ(TftpState):
         """Handle the packet in response to an RRQ to the server."""
         if not self.context.tidport:
             self.context.tidport = rport
-            log.info("Set remote port for session to %s" % rport)
+            log.info("Set remote port for session to %s", rport)
 
         # Now check the packet type and dispatch it properly.
         if isinstance(pkt, TftpPacketOACK):
@@ -598,7 +601,7 @@ class TftpStateSentRRQ(TftpState):
             try:
                 self.handleOACK(pkt)
             except TftpException as err:
-                log.error("Failed to negotiate options: %s" % str(err))
+                log.error("Failed to negotiate options: %s", str(err))
                 self.sendError(TftpErrors.FailedNegotiation)
                 raise
             else:
