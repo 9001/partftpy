@@ -2,7 +2,7 @@ this is a fork of [tftpy](https://github.com/msoulier/tftpy) with [copyparty](ht
 
 available [on pypi](https://pypi.org/project/partftpy/)
 
-99.9% of the code here is copyright 2010-2021, Michael P. Soulier (msoulier@digitaltorque.ca)
+99% of the code here is copyright 2010-2021, Michael P. Soulier (msoulier@digitaltorque.ca)
 
 
 # significant changes
@@ -14,7 +14,12 @@ available [on pypi](https://pypi.org/project/partftpy/)
 * supports specifying a portrange to use for data transfer instead of selecting an ephemeral port [b8844c03](https://github.com/9001/partftpy/commit/b8844c03)
   * good for firewalls
 
-* slightly yolo fix for [#140 DoS when parsing a packet with a length less than 2](https://github.com/msoulier/tftpy/issues/140) [79ac8460](https://github.com/9001/partftpy/commit/79ac8460)
+* support IPv6 by merging [#98 (Add ipv6 support for server and client)](https://github.com/msoulier/tftpy/pull/98/files) [b3e3c39a](https://github.com/9001/partftpy/commit/b3e3c39a)
+
+* support utf-8 filenames [73d12fc0](https://github.com/9001/partftpy/commit/73d12fc0)
+  * spec says netascii but many clients do this instead, including curl
+
+* yolo fix for [#140 (crash on small packets)](https://github.com/msoulier/tftpy/issues/140) [79ac8460](https://github.com/9001/partftpy/commit/79ac8460)
 
 
 # other changes
