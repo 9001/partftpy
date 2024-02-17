@@ -8,6 +8,7 @@ performed via a standard logging object set in TftpShared."""
 
 
 import logging
+import socket
 import types
 
 from .TftpContexts import TftpContextClientDownload, TftpContextClientUpload
@@ -22,7 +23,7 @@ class TftpClient(TftpSession):
     download can be initiated via the download() method, or an upload via the
     upload() method."""
 
-    def __init__(self, host, port=69, options={}, localip=""):
+    def __init__(self, host, port=69, options={}, localip="", af_family=socket.AF_INET):
         TftpSession.__init__(self)
         self.context = None
         self.host = host
@@ -30,6 +31,7 @@ class TftpClient(TftpSession):
         self.filename = None
         self.options = options
         self.localip = localip
+        self.af_family = af_family
         if "blksize" in self.options:
             size = self.options["blksize"]
             tftpassert(int == type(size), "blksize must be an int")
@@ -71,6 +73,7 @@ class TftpClient(TftpSession):
             timeout,
             retries=retries,
             localip=self.localip,
+            af_family=self.af_family,
             ports=ports
         )
         self.context.start()

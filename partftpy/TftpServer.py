@@ -85,6 +85,7 @@ class TftpServer(TftpSession):
         listenport=DEF_TFTP_PORT,
         timeout=SOCK_TIMEOUT,
         retries=DEF_TIMEOUT_RETRIES,
+        af_family=socket.AF_INET,
         ports=None,
     ):
         """Start a server listening on the supplied interface and port. This
@@ -93,12 +94,13 @@ class TftpServer(TftpSession):
         tftp_factory = TftpPacketFactory()
 
         listenip = listenip or "0.0.0.0"
-        log.info("listening @ %s:%s", listenip, listenport)
+        ip_str = listenip if af_family == socket.AF_INET else "[%s]" % (listenip,)
+        log.info("listening @ %s:%s", ip_str, listenport)
         try:
             # FIXME - sockets should be non-blocking
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock = socket.socket(af_family, socket.SOCK_DGRAM)
             self.sock.bind((listenip, listenport))
-            _, self.listenport = self.sock.getsockname()
+            self.listenport = self.sock.getsockname()[1]
         except OSError as err:
             # Reraise it for now.
             raise err
@@ -153,7 +155,9 @@ class TftpServer(TftpSession):
                 # Is the traffic on the main server socket? ie. new session?
                 if readysock == self.sock:
                     log.debug("Data ready on our main socket")
-                    buffer, (raddress, rport) = self.sock.recvfrom(MAX_BLKSIZE)
+                    buffer, rai = self.sock.recvfrom(MAX_BLKSIZE)
+                    raddress = rai[0]
+                    rport = rai[1]
 
                     log.debug("Read %d bytes", len(buffer))
 
@@ -177,6 +181,7 @@ class TftpServer(TftpSession):
                             self.dyn_file_func,
                             self.upload_open,
                             retries=retries,
+                            af_family=af_family,
                             ports=ports,
                         )
                         try:

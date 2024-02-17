@@ -84,14 +84,15 @@ class TftpMetrics(object):
 class TftpContext(object):
     """The base class of the contexts."""
 
-    def __init__(self, host, port, timeout, retries=DEF_TIMEOUT_RETRIES, localip="", ports=None):
+    def __init__(self, host, port, timeout, retries=DEF_TIMEOUT_RETRIES, localip="", af_family=socket.AF_INET, ports=None):
         """Constructor for the base context, setting shared instance
         variables."""
         self.file_to_transfer = None
         self.fileobj = None
         self.options = None
         self.packethook = None
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.af_family = af_family
+        self.sock = socket.socket(af_family, socket.SOCK_DGRAM)
         for n in ports or [0]:
             try:
                 if localip != "":
@@ -110,6 +111,7 @@ class TftpContext(object):
         self.next_block = 0
         self.factory = TftpPacketFactory()
         # Note, setting the host will also set self.address, as it's a property.
+        self.address = ""
         self.host = host
         self.port = port
         # The port associated with the TID
@@ -170,7 +172,12 @@ class TftpContext(object):
         of the host that is set.
         """
         self.__host = host
-        self.address = socket.gethostbyname(host)
+        if self.af_family == socket.AF_INET:
+            self.address = socket.gethostbyname(host)
+        elif self.af_family == socket.AF_INET6:
+            self.address = socket.getaddrinfo(host, 0)[0][4][0]
+        else:
+            raise ValueError("af_family is not supported")
 
     host = property(gethost, sethost)
 
@@ -191,7 +198,9 @@ class TftpContext(object):
         something, and dispatch appropriate action to that response.
         """
         try:
-            (buffer, (raddress, rport)) = self.sock.recvfrom(MAX_BLKSIZE)
+            buffer, rai = self.sock.recvfrom(MAX_BLKSIZE)
+            raddress = rai[0]
+            rport = rai[1]
         except socket.timeout:
             log.warning("Timeout waiting for traffic, retrying...")
             raise TftpTimeout("Timed-out waiting for traffic")
@@ -247,9 +256,10 @@ class TftpContextServer(TftpContext):
         dyn_file_func=None,
         upload_open=None,
         retries=DEF_TIMEOUT_RETRIES,
+        af_family=socket.AF_INET,
         ports=None,
     ):
-        TftpContext.__init__(self, host, port, timeout, retries, ports=ports)
+        TftpContext.__init__(self, host, port, timeout, retries, af_family=af_family, ports=ports)
         # At this point we have no idea if this is a download or an upload. We
         # need to let the start state determine that.
         self.state = TftpStateServerStart(self)
@@ -305,9 +315,10 @@ class TftpContextClientUpload(TftpContext):
         timeout,
         retries=DEF_TIMEOUT_RETRIES,
         localip="",
+        af_family=socket.AF_INET,
         ports=None,
     ):
-        TftpContext.__init__(self, host, port, timeout, retries, localip, ports)
+        TftpContext.__init__(self, host, port, timeout, retries, localip, af_family, ports)
         self.file_to_transfer = filename
         self.options = options
         self.packethook = packethook
