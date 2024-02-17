@@ -13,7 +13,14 @@ from multiprocessing import Queue
 from shutil import rmtree
 from tempfile import mkdtemp
 
-import tftpy
+import tftpy.TftpClient
+import tftpy.TftpContexts
+import tftpy.TftpPacketTypes
+import tftpy.TftpServer
+import tftpy.TftpShared
+from tftpy.TftpClient import TftpClient
+from tftpy.TftpServer import TftpServer
+from tftpy.TftpShared import TftpException, TftpTimeoutExpectACK
 
 log = logging.getLogger("tftpy")
 log.setLevel(logging.DEBUG)
@@ -165,8 +172,8 @@ class TestTftpyState(unittest.TestCase):
         if transmitname:
             filename = transmitname
         server_kwargs = server_kwargs or {}
-        server = tftpy.TftpServer(root, **server_kwargs)
-        client = tftpy.TftpClient("localhost", 20001, options)
+        server = TftpServer(root, **server_kwargs)
+        client = TftpClient("localhost", 20001, options)
         # Fork a server and run the client in this process.
         child_pid = os.fork()
         if child_pid:
@@ -185,13 +192,13 @@ class TestTftpyState(unittest.TestCase):
         self,
         options,
         output="/tmp/out",
-        cretries=tftpy.DEF_TIMEOUT_RETRIES,
-        sretries=tftpy.DEF_TIMEOUT_RETRIES,
+        cretries=tftpy.TftpShared.DEF_TIMEOUT_RETRIES,
+        sretries=tftpy.TftpShared.DEF_TIMEOUT_RETRIES,
     ):
         """Fire up a client and a server and do a download."""
         root = os.path.dirname(os.path.abspath(__file__))
-        server = tftpy.TftpServer(root)
-        client = tftpy.TftpClient("localhost", 20001, options)
+        server = TftpServer(root)
+        client = TftpClient("localhost", 20001, options)
         # Fork a server and run the client in this process.
         child_pid = os.fork()
         if child_pid:
@@ -267,7 +274,7 @@ class TestTftpyState(unittest.TestCase):
         self.customUploadHelper(lambda p: open(p, "wb"))
 
     def testClientServerUploadCustomOpenForbids(self):
-        with self.assertRaisesRegex(tftpy.TftpException, "Access violation"):
+        with self.assertRaisesRegex(TftpException, "Access violation"):
             self.customUploadHelper(lambda p: None)
 
     def testClientServerUploadTsize(self):
@@ -361,7 +368,7 @@ class TestTftpyState(unittest.TestCase):
         # Receive duplicate ACK for block 1 after timeout for resending block 2
         serverstate.state.context.metrics.last_dat_time -= 10  # Simulate 10 seconds time warp
         self.assertRaises(
-            tftpy.TftpTimeoutExpectACK, serverstate.state.handle, ack, raddress, rport
+            TftpTimeoutExpectACK, serverstate.state.handle, ack, raddress, rport
         )
         self.assertTrue(
             isinstance(serverstate.state, tftpy.TftpStates.TftpStateExpectACK)
@@ -419,7 +426,7 @@ class TestTftpyState(unittest.TestCase):
 
             # Start the download.
             self.assertRaises(
-                tftpy.TftpException, serverstate.start, rrq.encode().buffer
+                TftpException, serverstate.start, rrq.encode().buffer
             )
 
     def testServerInsecurePathRelative(self):
@@ -438,7 +445,7 @@ class TestTftpyState(unittest.TestCase):
 
             # Start the download.
             self.assertRaises(
-                tftpy.TftpException, serverstate.start, rrq.encode().buffer
+                TftpException, serverstate.start, rrq.encode().buffer
             )
 
     def testServerInsecurePathRootSibling(self):
@@ -457,7 +464,7 @@ class TestTftpyState(unittest.TestCase):
 
             # Start the download.
             self.assertRaises(
-                tftpy.TftpException, serverstate.start, rrq.encode().buffer
+                TftpException, serverstate.start, rrq.encode().buffer
             )
 
     def testServerSecurePathAbsolute(self):
@@ -505,8 +512,8 @@ class TestTftpyState(unittest.TestCase):
     def testServerDownloadWithStopNow(self, output="/tmp/out"):
         log.debug("===> Running testcase testServerDownloadWithStopNow")
         root = os.path.dirname(os.path.abspath(__file__))
-        server = tftpy.TftpServer(root)
-        client = tftpy.TftpClient("localhost", 20001, {})
+        server = TftpServer(root)
+        client = TftpClient("localhost", 20001, {})
         # Fork a server and run the client in this process.
         child_pid = os.fork()
         if child_pid:
@@ -549,8 +556,8 @@ class TestTftpyState(unittest.TestCase):
     def testServerDownloadWithStopNotNow(self, output="/tmp/out"):
         log.debug("===> Running testcase testServerDownloadWithStopNotNow")
         root = os.path.dirname(os.path.abspath(__file__))
-        server = tftpy.TftpServer(root)
-        client = tftpy.TftpClient("localhost", 20001, {})
+        server = TftpServer(root)
+        client = TftpClient("localhost", 20001, {})
         # Fork a server and run the client in this process.
         child_pid = os.fork()
         if child_pid:
@@ -593,7 +600,7 @@ class TestTftpyState(unittest.TestCase):
         log.debug("===> Running testcase testServerDownloadWithDynamicPort")
         root = os.path.dirname(os.path.abspath(__file__))
 
-        server = tftpy.TftpServer(root)
+        server = TftpServer(root)
         server_thread = threading.Thread(
             target=server.listen, kwargs={"listenip": "localhost", "listenport": 0}
         )
@@ -601,7 +608,7 @@ class TestTftpyState(unittest.TestCase):
 
         try:
             server.is_running.wait()
-            client = tftpy.TftpClient("localhost", server.listenport, {})
+            client = TftpClient("localhost", server.listenport, {})
             time.sleep(1)
             client.download("640KBFILE", output)
         finally:
@@ -618,8 +625,8 @@ class TestTftpyMisc(unittest.TestCase):
         filename = "640KBFILE"
         input_path = os.path.join(home, filename)
         print("input_path is", input_path)
-        server = tftpy.TftpServer(root)
-        client = tftpy.TftpClient("localhost", 20001)
+        server = TftpServer(root)
+        client = TftpClient("localhost", 20001)
         # Fork a server and run the client in this process.
         child_pid = os.fork()
         if child_pid:
