@@ -148,7 +148,7 @@ class TftpPacketInitial(TftpPacket, TftpPacketWithOptions):
         filename = self.filename
         mode = self.mode
         if not isinstance(filename, bytes):
-            filename = filename.encode("ascii")
+            filename = filename.encode("utf-8", "replace")
         if not isinstance(self.mode, bytes):
             mode = mode.encode("ascii")
 
@@ -227,7 +227,7 @@ class TftpPacketInitial(TftpPacket, TftpPacketWithOptions):
         mystruct = struct.unpack(fmt, shortbuf)
 
         tftpassert(len(mystruct) == 2, "malformed packet")
-        self.filename = mystruct[0].decode("ascii")
+        self.filename = mystruct[0].decode("utf-8", "replace")
         self.mode = mystruct[1].decode("ascii").lower()  # force lc - bug 17
         log.debug("set filename to %s", self.filename)
         log.debug("set mode to %s", self.mode)
