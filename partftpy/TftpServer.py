@@ -91,11 +91,9 @@ class TftpServer(TftpSession):
         """Start a server listening on the supplied interface and port. This
         defaults to INADDR_ANY (all interfaces) and UDP port 69. You can also
         supply a different socket timeout value, if desired."""
-        tftp_factory = TftpPacketFactory()
 
         listenip = listenip or "0.0.0.0"
         ip_str = listenip if af_family == socket.AF_INET else "[%s]" % (listenip,)
-        log.info("listening @ %s:%s", ip_str, listenport)
         try:
             # FIXME - sockets should be non-blocking
             self.sock = socket.socket(af_family, socket.SOCK_DGRAM)
@@ -105,6 +103,7 @@ class TftpServer(TftpSession):
             # Reraise it for now.
             raise err
 
+        log.info("listening @ %s:%s", ip_str, listenport)
         self.is_running.set()
         last_timeout_chk = 0
 
