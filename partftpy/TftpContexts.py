@@ -112,6 +112,7 @@ class TftpContext(object):
         self.factory = TftpPacketFactory()
         # Note, setting the host will also set self.address, as it's a property.
         self.address = ""
+        self.address4 = ""
         self.host = host
         self.port = port
         # The port associated with the TID
@@ -179,6 +180,11 @@ class TftpContext(object):
         else:
             raise ValueError("af_family is not supported")
 
+        if self.address.startswith("::ffff:"):
+            self.address4 = self.address[7:]
+        else:
+            self.address4 = self.address
+
     host = property(gethost, sethost)
 
     def setNextBlock(self, block):
@@ -214,7 +220,7 @@ class TftpContext(object):
         recvpkt = self.factory.parse(buffer)
 
         # Check for known "connection".
-        if raddress != self.address:
+        if raddress != self.address and raddress != self.address4 and raddress.lstrip(":f") != self.address4:
             log.warning(
                 "Received traffic from %s, expected host %s. Discarding",
                 raddress,
