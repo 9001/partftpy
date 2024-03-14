@@ -28,3 +28,14 @@ available [on pypi](https://pypi.org/project/partftpy/)
 
 * restored python 2.7 support [c0d19ada](https://github.com/9001/partftpy/commit/c0d19ada)
 
+
+----
+
+how to release:
+
+* update version and date in `__init__.py`
+* `git commit -m v0.x.y`
+* `git tag v0.x.y`
+* `git push --tags`
+* `./scripts/make-pypi-release.sh u`
+
