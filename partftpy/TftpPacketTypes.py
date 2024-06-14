@@ -122,11 +122,14 @@ class TftpPacketInitial(TftpPacket, TftpPacketWithOptions):
             fmt += b"5sx"
         else:
             raise AssertionError("Unsupported mode: %s" % mode)
-        # Add options. Note that the options list must be bytes.
+
+        opts = dict(self.options)
+        if int(opts.get("blksize", 0)) == DEF_BLKSIZE:
+            opts.pop("blksize")
         options_list = []
-        if len(list(self.options.keys())) > 0:
+        if opts:
             log.debug("there are options to encode")
-            for name, value in self.options.items():
+            for name, value in opts.items():
                 # Populate the option name
                 if not isinstance(name, bytes):
                     name = name.encode("utf-8")

@@ -37,6 +37,8 @@ class TftpClient(TftpSession):
             tftpassert(int == type(size), "blksize must be an int")
             if size < MIN_BLKSIZE or size > MAX_BLKSIZE:
                 raise TftpException("Invalid blksize: %d" % size)
+        else:
+            self.options["blksize"] = DEF_BLKSIZE
 
     def download(
         self,
