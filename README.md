@@ -5,6 +5,15 @@ available [on pypi](https://pypi.org/project/partftpy/)
 99% of the code here is copyright 2010-2021, Michael P. Soulier (msoulier@digitaltorque.ca)
 
 
+# warning
+
+the purpose of this fork is to support copyparty with any necessary changes (possibly controversial ones, such as [4e873925](https://github.com/9001/partftpy/commit/4e873925))
+
+while unlikely at this point, there might be additional **breaking changes,** but I'll try to not break anything by accident
+
+my main focus will be features/bugs which affect copyparty, meaning the server part of this library -- anything else will be **low priority, or maybe even wontfix** (sorry!)
+
+
 # significant changes
 
 * `from tftpy import TftpServer` => `from partftpy.TftpServer import TftpServer` [4e873925](https://github.com/9001/partftpy/commit/4e873925)
