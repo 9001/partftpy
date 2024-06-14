@@ -3,6 +3,7 @@
 # -*- coding: utf8 -*-
 
 import logging
+import socket
 import sys
 from optparse import OptionParser
 
@@ -74,9 +75,11 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    fam = socket.AF_INET6 if ":" in options.ip else socket.AF_INET
+
     server = TftpServer(options.root)
     try:
-        server.listen(options.ip, options.port)
+        server.listen(options.ip, options.port, af_family=fam)
     except TftpException as err:
         sys.stderr.write("%s\n" % str(err))
         sys.exit(1)

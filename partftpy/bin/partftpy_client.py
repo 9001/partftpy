@@ -4,6 +4,7 @@
 
 import logging
 import os
+import socket
 import sys
 from optparse import OptionParser
 
@@ -141,11 +142,14 @@ def main():
     if options.tsize:
         tftp_options["tsize"] = 0
 
+    fam = socket.AF_INET6 if ":" in options.host else socket.AF_INET
+
     tclient = TftpClient(
         options.host,
         int(options.port),
         tftp_options,
         options.localip,
+        af_family=fam,
     )
     try:
         if options.download:
