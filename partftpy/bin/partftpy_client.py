@@ -7,7 +7,9 @@ import os
 import sys
 from optparse import OptionParser
 
-import partftpy
+import partftpy.TftpPacketTypes
+from partftpy.TftpClient import TftpClient
+from partftpy.TftpShared import TftpException
 
 log = logging.getLogger("partftpy")
 log.setLevel(logging.INFO)
@@ -110,12 +112,14 @@ def main():
     class Progress(object):
         def __init__(self, out):
             self.progress = 0
+            self.pkts = 0
             self.out = out
 
         def progresshook(self, pkt):
             if isinstance(pkt, partftpy.TftpPacketTypes.TftpPacketDAT):
+                self.pkts += 1
                 self.progress += len(pkt.data)
-                self.out("Transferred %d bytes" % self.progress)
+                self.out("Transferred %d bytes, %d pkts" % (self.progress, self.pkts))
             elif isinstance(pkt, partftpy.TftpPacketTypes.TftpPacketOACK):
                 self.out("Received OACK, options are: %s" % pkt.options)
 
@@ -137,7 +141,7 @@ def main():
     if options.tsize:
         tftp_options["tsize"] = 0
 
-    tclient = partftpy.TftpClient(
+    tclient = TftpClient(
         options.host,
         int(options.port),
         tftp_options,
@@ -160,7 +164,7 @@ def main():
                 options.input,
                 progresshook,
             )
-    except partftpy.TftpException as err:
+    except TftpException as err:
         sys.stderr.write("%s\n" % str(err))
         sys.exit(1)
     except KeyboardInterrupt:

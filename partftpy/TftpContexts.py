@@ -420,9 +420,12 @@ class TftpContextClientDownload(TftpContext):
         timeout,
         retries=DEF_TIMEOUT_RETRIES,
         localip="",
+        af_family=socket.AF_INET,
         ports=None,
     ):
-        TftpContext.__init__(self, host, port, timeout, retries, localip, ports)
+        TftpContext.__init__(
+            self, host, port, timeout, retries, localip, af_family, ports
+        )
         # FIXME: should we refactor setting of these params?
         self.file_to_transfer = filename
         self.options = options
