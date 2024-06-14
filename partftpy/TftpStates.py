@@ -530,6 +530,10 @@ class TftpStateExpectDAT(TftpState):
             self.sendError(TftpErrors.IllegalTftpOp)
             raise TftpException("Received ERR from peer: " + str(pkt))
 
+        elif isinstance(pkt, TftpPacketACK) or isinstance(pkt, TftpPacketOACK):
+            log.warning("Discarding unexpected packet type (retransmission?): %s", pkt)
+            return self
+
         else:
             self.sendError(TftpErrors.IllegalTftpOp)
             raise TftpException("Received unknown packet type from peer: " + str(pkt))
