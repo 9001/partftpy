@@ -64,8 +64,10 @@ class TftpState(object):
         # We support the options blksize and tsize right now.
         # FIXME - put this somewhere else?
         accepted_options = {}
-        for option in options:
-            if option == "blksize":
+        for option, optval in options.items():
+            if optval == "":
+                log.info("Option ignored due to blank value: '%s'", option)
+            elif option == "blksize":
                 # Make sure it's valid.
                 if int(options[option]) > MAX_BLKSIZE:
                     log.info(

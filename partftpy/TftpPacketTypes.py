@@ -46,7 +46,6 @@ class TftpPacketWithOptions(object):
         words.pop()
 
         tftpassert(len(words) % 2 == 0, "packet has odd number of option/value pairs")
-        tftpassert("" not in words, "packet has zerolength option values")
 
         options = {k: v for k, v in zip(words[::2], words[1::2])}
         for k in ("blksize", "tsize"):
