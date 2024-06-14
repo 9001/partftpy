@@ -70,13 +70,13 @@ class TftpState(object):
                 if int(options[option]) > MAX_BLKSIZE:
                     log.info(
                         "Client requested blksize greater than %d; setting to maximum",
-                        MAX_BLKSIZE
+                        MAX_BLKSIZE,
                     )
                     accepted_options[option] = MAX_BLKSIZE
                 elif int(options[option]) < MIN_BLKSIZE:
                     log.info(
                         "Client requested blksize less than %d; setting to minimum",
-                        MIN_BLKSIZE
+                        MIN_BLKSIZE,
                     )
                     accepted_options[option] = MIN_BLKSIZE
                 else:
@@ -170,7 +170,7 @@ class TftpState(object):
 
     def resendLast(self):
         """Resend the last sent packet due to a timeout."""
-        assert( self.context.last_pkt is not None )
+        assert self.context.last_pkt is not None
         log.warning("Resending packet %s on sessions %s", self.context.last_pkt, self)
         self.context.metrics.resent_bytes += len(self.context.last_pkt.buffer)
         self.context.metrics.add_dup(self.context.last_pkt)
@@ -273,7 +273,7 @@ class TftpServerState(TftpState):
                 self.context.host,
                 self.context.port,
                 raddress,
-                rport
+                rport,
             )
             # FIXME: increment an error count?
             # Return same state, we're still waiting for valid traffic.
@@ -412,7 +412,7 @@ class TftpStateServerRecvWRQ(TftpServerState):
                 # FIXME: correct behavior?
                 log.warning(
                     "File %s exists already, overwriting...",
-                    self.context.file_to_transfer
+                    self.context.file_to_transfer,
                 )
             # FIXME: I think we should upload to a temp file and not overwrite
             # the existing file until the file is successfully uploaded.
@@ -482,8 +482,14 @@ class TftpStateExpectACK(TftpState):
                 log.warning("Received duplicate ACK for block %d", pkt.blocknumber)
                 self.context.metrics.add_dup(pkt)
                 if self.context.metrics.last_dat_time > 0:
-                    if time.time() - self.context.metrics.last_dat_time > self.context.timeout:
-                        raise TftpTimeoutExpectACK("Timeout waiting for ACK for block %d" % self.context.next_block)
+                    if (
+                        time.time() - self.context.metrics.last_dat_time
+                        > self.context.timeout
+                    ):
+                        raise TftpTimeoutExpectACK(
+                            "Timeout waiting for ACK for block %d"
+                            % self.context.next_block
+                        )
 
             else:
                 log.warning(

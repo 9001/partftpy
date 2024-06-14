@@ -74,7 +74,7 @@ class TftpClient(TftpSession):
             retries=retries,
             localip=self.localip,
             af_family=self.af_family,
-            ports=ports
+            ports=ports,
         )
         self.context.start()
         # Download happens here

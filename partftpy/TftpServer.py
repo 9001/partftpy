@@ -171,7 +171,9 @@ class TftpServer(TftpSession):
                     key = "%s:%s" % (raddress, rport)
 
                     if key not in self.sessions:
-                        log.debug("Creating new server context for session key = %s", key)
+                        log.debug(
+                            "Creating new server context for session key = %s", key
+                        )
                         self.sessions[key] = TftpContextServer(
                             raddress,
                             rport,
@@ -188,16 +190,19 @@ class TftpServer(TftpSession):
                         except TftpTimeoutExpectACK:
                             self.sessions[key].timeout_expectACK = True
                         except Exception as err:
-                            if isinstance(err, TftpException) and str(err).startswith("File not found:"):
+                            zb = isinstance(err, TftpException)
+                            if zb and str(err).startswith("File not found:"):
                                 pass
                             else:
-                                self.sessions[key].state.sendError(TftpErrors.AccessViolation)
+                                self.sessions[key].state.sendError(
+                                    TftpErrors.AccessViolation
+                                )
 
                             deletion_list.append(key)
                             log.error(
                                 "Fatal exception thrown from session %s: %s",
                                 key,
-                                str(err)
+                                str(err),
                             )
                     else:
                         log.warning(
@@ -222,17 +227,22 @@ class TftpServer(TftpSession):
                             except TftpTimeoutExpectACK:
                                 self.sessions[key].timeout_expectACK = True
                             except Exception as err:
-                                if isinstance(err, TftpException) and str(err).startswith("File not found:"):
+                                zb = isinstance(err, TftpException)
+                                if zb and str(err).startswith("File not found:"):
                                     pass
                                 else:
-                                    self.sessions[key].state.sendError(TftpErrors.AccessViolation)
+                                    self.sessions[key].state.sendError(
+                                        TftpErrors.AccessViolation
+                                    )
 
-                                self.sessions[key].state.sendError(TftpErrors.AccessViolation)
+                                self.sessions[key].state.sendError(
+                                    TftpErrors.AccessViolation
+                                )
                                 deletion_list.append(key)
                                 log.error(
                                     "Fatal exception thrown from session %s: %s",
                                     key,
-                                    str(err)
+                                    str(err),
                                 )
                             # Break out of for loop since we found the correct
                             # session.
@@ -251,7 +261,9 @@ class TftpServer(TftpSession):
                         log.error(str(err))
                         self.sessions[key].retry_count += 1
                         if self.sessions[key].retry_count >= self.sessions[key].retries:
-                            log.debug("hit max retries on %s, giving up", self.sessions[key])
+                            log.debug(
+                                "hit max retries on %s, giving up", self.sessions[key]
+                            )
                             deletion_list.append(key)
                         else:
                             log.debug("resending on session %s", self.sessions[key])
@@ -269,9 +281,16 @@ class TftpServer(TftpSession):
                     if st.duration == 0:
                         t += "Duration too short, rate undetermined; "
                     else:
-                        t += "%d byte, %.2f sec, %.4f MiB/s, " % (st.bytes, st.duration, spd)
+                        t += "%d byte, %.2f sec, %.4f MiB/s, " % (
+                            st.bytes,
+                            st.duration,
+                            spd,
+                        )
 
-                    t += "%d bytes resent, %d dupe pkts" % (st.resent_bytes, st.dupcount)
+                    t += "%d bytes resent, %d dupe pkts" % (
+                        st.resent_bytes,
+                        st.dupcount,
+                    )
                     log.info(t)
 
                     log.debug("Deleting session %s", key)

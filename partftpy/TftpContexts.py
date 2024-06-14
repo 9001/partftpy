@@ -84,7 +84,16 @@ class TftpMetrics(object):
 class TftpContext(object):
     """The base class of the contexts."""
 
-    def __init__(self, host, port, timeout, retries=DEF_TIMEOUT_RETRIES, localip="", af_family=socket.AF_INET, ports=None):
+    def __init__(
+        self,
+        host,
+        port,
+        timeout,
+        retries=DEF_TIMEOUT_RETRIES,
+        localip="",
+        af_family=socket.AF_INET,
+        ports=None,
+    ):
         """Constructor for the base context, setting shared instance
         variables."""
         self.file_to_transfer = None
@@ -220,11 +229,15 @@ class TftpContext(object):
         recvpkt = self.factory.parse(buffer)
 
         # Check for known "connection".
-        if raddress != self.address and raddress != self.address4 and raddress.lstrip(":f") != self.address4:
+        if (
+            raddress != self.address
+            and raddress != self.address4
+            and raddress.lstrip(":f") != self.address4
+        ):
             log.warning(
                 "Received traffic from %s, expected host %s. Discarding",
                 raddress,
-                self.host
+                self.host,
             )
 
         if self.tidport and self.tidport != rport:
@@ -233,7 +246,7 @@ class TftpContext(object):
                 raddress,
                 rport,
                 self.host,
-                self.tidport
+                self.tidport,
             )
 
         # If there is a packethook defined, call it. We unconditionally
@@ -265,7 +278,9 @@ class TftpContextServer(TftpContext):
         af_family=socket.AF_INET,
         ports=None,
     ):
-        TftpContext.__init__(self, host, port, timeout, retries, af_family=af_family, ports=ports)
+        TftpContext.__init__(
+            self, host, port, timeout, retries, af_family=af_family, ports=ports
+        )
         # At this point we have no idea if this is a download or an upload. We
         # need to let the start state determine that.
         self.state = TftpStateServerStart(self)
@@ -324,7 +339,9 @@ class TftpContextClientUpload(TftpContext):
         af_family=socket.AF_INET,
         ports=None,
     ):
-        TftpContext.__init__(self, host, port, timeout, retries, localip, af_family, ports)
+        TftpContext.__init__(
+            self, host, port, timeout, retries, localip, af_family, ports
+        )
         self.file_to_transfer = filename
         self.options = options
         self.packethook = packethook

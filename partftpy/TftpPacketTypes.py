@@ -294,7 +294,9 @@ class TftpPacketACK(TftpPacket):
         return "ACK packet: block %d" % self.blocknumber
 
     def encode(self):
-        log.debug("encoding ACK: opcode = %d, block = %d", self.opcode, self.blocknumber)
+        log.debug(
+            "encoding ACK: opcode = %d, block = %d", self.opcode, self.blocknumber
+        )
         self.buffer = struct.pack("!HH", self.opcode, self.blocknumber)
         return self
 
@@ -304,7 +306,9 @@ class TftpPacketACK(TftpPacket):
             log.debug("buffer was: %s", repr(self.buffer))
             self.buffer = self.buffer[0:4]
         self.opcode, self.blocknumber = struct.unpack("!HH", self.buffer)
-        log.debug("decoded ACK packet: opcode = %d, block = %d", self.opcode, self.blocknumber)
+        log.debug(
+            "decoded ACK packet: opcode = %d, block = %d", self.opcode, self.blocknumber
+        )
         return self
 
 
