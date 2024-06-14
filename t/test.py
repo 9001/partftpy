@@ -50,7 +50,7 @@ class TestPartftpyClasses(unittest.TestCase):
         self.assertEqual(rrq.mode, "octet", "Mode correct")
         self.assertEqual(rrq.options, options, "Options correct")
         # repeat test with options
-        rrq.options = {"blksize": "1024"}
+        rrq.options = {"blksize": 1024}
         rrq.filename = "myfilename"
         rrq.mode = "octet"
         rrq.encode()
@@ -58,7 +58,7 @@ class TestPartftpyClasses(unittest.TestCase):
         rrq.decode()
         self.assertEqual(rrq.filename, "myfilename", "Filename correct")
         self.assertEqual(rrq.mode, "octet", "Mode correct")
-        self.assertEqual(rrq.options["blksize"], "1024", "blksize correct")
+        self.assertEqual(rrq.options["blksize"], 1024, "blksize correct")
 
     def testTftpPacketWRQ(self):
         log.debug("===> Running test case testTftpPacketWRQ")
@@ -75,7 +75,7 @@ class TestPartftpyClasses(unittest.TestCase):
         self.assertEqual(wrq.mode, "octet", "Mode correct")
         self.assertEqual(wrq.options, options, "Options correct")
         # repeat test with options
-        wrq.options = {"blksize": "1024"}
+        wrq.options = {"blksize": 1024}
         wrq.filename = "myfilename"
         wrq.mode = "octet"
         wrq.encode()
@@ -84,7 +84,7 @@ class TestPartftpyClasses(unittest.TestCase):
         self.assertEqual(wrq.opcode, 2, "Opcode correct")
         self.assertEqual(wrq.filename, "myfilename", "Filename correct")
         self.assertEqual(wrq.mode, "octet", "Mode correct")
-        self.assertEqual(wrq.options["blksize"], "1024", "Blksize correct")
+        self.assertEqual(wrq.options["blksize"], 1024, "Blksize correct")
 
     def testTftpPacketDAT(self):
         log.debug("===> Running testcase testTftpPacketDAT")
@@ -122,23 +122,23 @@ class TestPartftpyClasses(unittest.TestCase):
     def testTftpPacketOACK(self):
         log.debug("===> Running testcase testTftpPacketOACK")
         oack = TftpPacketTypes.TftpPacketOACK()
-        # Test that if we make blksize a number, it comes back a string.
+        # Test that if we make blksize a number, it comes back as int.
         oack.options = {"blksize": 2048}
         oack.encode()
         self.assertIsNotNone(oack.buffer, "Buffer populated")
         oack.decode()
         self.assertEqual(oack.opcode, 6, "OACK opcode is correct")
         self.assertEqual(
-            oack.options["blksize"], "2048", "OACK blksize option is correct"
+            oack.options["blksize"], 2048, "OACK blksize option is correct"
         )
-        # Test string to string
+        # Test string to int
         oack.options = {"blksize": "4096"}
         oack.encode()
         self.assertIsNotNone(oack.buffer, "Buffer populated")
         oack.decode()
         self.assertEqual(oack.opcode, 6, "OACK opcode is correct")
         self.assertEqual(
-            oack.options["blksize"], "4096", "OACK blksize option is correct"
+            oack.options["blksize"], 4096, "OACK blksize option is correct"
         )
 
     def testTftpPacketFactory(self):
