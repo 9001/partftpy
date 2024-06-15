@@ -23,13 +23,15 @@ class TftpClient(TftpSession):
     download can be initiated via the download() method, or an upload via the
     upload() method."""
 
-    def __init__(self, host, port=69, options={}, localip="", af_family=socket.AF_INET):
+    def __init__(
+        self, host, port=69, options=None, localip="", af_family=socket.AF_INET
+    ):
         TftpSession.__init__(self)
         self.context = None
         self.host = host
         self.iport = port
         self.filename = None
-        self.options = options
+        self.options = options or {}
         self.localip = localip
         self.af_family = af_family
         if "blksize" in self.options:

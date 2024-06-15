@@ -92,7 +92,9 @@ class TftpServer(TftpSession):
         defaults to INADDR_ANY (all interfaces) and UDP port 69. You can also
         supply a different socket timeout value, if desired."""
 
-        listenip = listenip or "0.0.0.0"
+        if not listenip:
+            listenip = "0.0.0.0" if af_family == socket.AF_INET else "::"
+
         ip_str = listenip if af_family == socket.AF_INET else "[%s]" % (listenip,)
         try:
             # FIXME - sockets should be non-blocking

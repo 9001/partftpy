@@ -102,12 +102,12 @@ class TftpContext(object):
         self.packethook = None
         self.af_family = af_family
         self.sock = socket.socket(af_family, socket.SOCK_DGRAM)
+        if not localip:
+            localip = "0.0.0.0" if af_family == socket.AF_INET else "::"
+
         for n in ports or [0]:
             try:
-                if localip != "":
-                    self.sock.bind((localip, 0))
-                else:
-                    self.sock.bind(("0.0.0.0", n))
+                self.sock.bind((localip, n))
                 break
             except:
                 continue
