@@ -7,8 +7,8 @@ This library implements the tftp protocol, based on rfc 1350.
 http://www.faqs.org/rfcs/rfc1350.html
 """
 
-VERSION = (0, 3, 1)
-BUILD_DT = (2024, 3, 14)
+VERSION = (0, 4, 0)
+BUILD_DT = (2024, 6, 16)
 
 S_VERSION = ".".join(map(str, VERSION))
 S_BUILD_DT = "{0:04d}-{1:02d}-{2:02d}".format(*BUILD_DT)

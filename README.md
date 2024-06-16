@@ -14,11 +14,17 @@ while unlikely at this point, there might be additional **breaking changes,** bu
 my main focus will be features/bugs which affect copyparty, meaning the server part of this library -- anything else will be **low priority, or maybe even wontfix** (sorry!)
 
 
-# significant changes
+# breaking changes
 
 * `from tftpy import TftpServer` => `from partftpy.TftpServer import TftpServer` [4e873925](https://github.com/9001/partftpy/commit/4e873925)
   * to make it possible to monkeypatch stuff inside `TftpServer`, for example swapping out the `os` module with a virtual filesystem, which copyparty does
   * crude alternative to [fknittel's proper VFS](https://github.com/msoulier/tftpy/pull/30) but copyparty was already doing this for impacket so for my purposes it's fine
+
+* packethook gets called with two arguments `(TftpPacket, TftpContext)` instead of just the TftpPacket [f2e10d3f](https://github.com/9001/partftpy/commit/f2e10d3f)
+  * fixes [#103 (total filesize in progress messages)](https://github.com/msoulier/tftpy/issues/103) so that `bin/partftpy_client.py` now shows remaining number of bytes in transfer if started with `-t`
+
+
+# significant changes
 
 * supports specifying a portrange to use for data transfer instead of selecting an ephemeral port [b8844c03](https://github.com/9001/partftpy/commit/b8844c03)
   * good for firewalls
