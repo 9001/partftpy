@@ -37,6 +37,17 @@ class TftpPacketWithOptions(object):
         values."""
 
         log.debug("decode_options: buffer is %d bytes: %r", len(buffer), buffer)
+
+        if buffer.endswith(b"\x00\x00"):
+            log.warn(
+                "Received an invalid OACK (multiple trailing nullbytes); will workaround: %r",
+                buffer,
+            )
+            buffer = buffer.rstrip(b"\x00") + b"\x00"
+            if len(buffer.split(b"\x00")) % 2 == 0:
+                # the last \x00 was an option with no value; support that quirk as well
+                buffer += b"\x00"
+
         words = [x.decode("utf-8", "replace") for x in buffer.split(b"\x00")]
         if not words:
             log.debug("client provided no options")
