@@ -2,6 +2,8 @@
 # vim: ts=4 sw=4 et ai:
 from __future__ import print_function, unicode_literals
 
+import sys
+
 """This module holds all objects shared by all other modules in partftpy."""
 
 
@@ -20,6 +22,15 @@ NETWORK_UNRELIABILITY = 0
 # 0 is disabled, anything positive is the inverse of the percentage of
 # dropped traffic. For example, 1000 would cause 0.1% of DAT packets to
 # be skipped to simulate lost packets.
+
+
+PY2 = sys.version_info < (3,)
+
+
+try:
+    from typing import TYPE_CHECKING
+except:
+    TYPE_CHECKING = False
 
 
 def tftpassert(condition, msg):

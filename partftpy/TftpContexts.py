@@ -350,7 +350,7 @@ class TftpContextClientUpload(TftpContext):
         if hasattr(input, "read"):
             self.fileobj = input
         elif input == "-":
-            self.fileobj = sys.stdin.buffer
+            self.fileobj = sys.stdin if PY2 else sys.stdin.buffer
         else:
             self.fileobj = open(input, "rb")
 
@@ -438,7 +438,7 @@ class TftpContextClientDownload(TftpContext):
             self.filelike_fileobj = True
         # If the output filename is -, then use stdout
         elif output == "-":
-            self.fileobj = sys.stdout
+            self.fileobj = sys.stdout if PY2 else sys.stdout.buffer
             self.filelike_fileobj = True
         else:
             self.fileobj = open(output, "wb")
