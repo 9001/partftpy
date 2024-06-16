@@ -30,6 +30,18 @@ my main focus will be features/bugs which affect copyparty, meaning the server p
 
 * yolo fix for [#140 (crash on small packets)](https://github.com/msoulier/tftpy/issues/140) [79ac8460](https://github.com/9001/partftpy/commit/79ac8460)
 
+* improved robustness for unreliable networks
+
+  * ignore duplicate ACK/OACK instead of panicking [72acb114](https://github.com/9001/partftpy/commit/72acb114)
+
+* workarounds for buggy servers/clients
+
+  * fix [#141 (allow blank options in OACK)](https://github.com/msoulier/tftpy/issues/141) [8e52f3d8](https://github.com/9001/partftpy/commit/8e52f3d8)
+
+  * fix [#136 (allow multiple null-terminators in OACK)](https://github.com/msoulier/tftpy/issues/136) [236fb087](https://github.com/9001/partftpy/commit/236fb087)
+
+* fix [#113 (uploading from stdin, downloading to stdout)](https://github.com/msoulier/tftpy/issues/113) [0087f02d](https://github.com/9001/partftpy/commit/0087f02d)
+
 
 # other changes
 
