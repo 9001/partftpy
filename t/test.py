@@ -495,7 +495,7 @@ class TestPartftpyState(unittest.TestCase):
                 stopped_early = False
                 time.sleep(1)
 
-                def delay_hook(pkt):
+                def delay_hook(pkt, ctx):
                     time.sleep(0.005)  # 5ms
 
                 client.download("640KBFILE", output, delay_hook)
@@ -539,7 +539,7 @@ class TestPartftpyState(unittest.TestCase):
                 # parent - let the server start
                 time.sleep(1)
 
-                def delay_hook(pkt):
+                def delay_hook(pkt, ctx):
                     time.sleep(0.005)  # 5ms
 
                 client.download("640KBFILE", output, delay_hook)

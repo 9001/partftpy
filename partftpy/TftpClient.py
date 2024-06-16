@@ -54,9 +54,11 @@ class TftpClient(TftpSession):
         """This method initiates a tftp download from the configured remote
         host, requesting the filename passed. It writes the file to output,
         which can be a file-like object or a path to a local file. If a
-        packethook is provided, it must be a function that takes a single
-        parameter, which will be a copy of each DAT packet received in the
-        form of a TftpPacketDAT object. The timeout parameter may be used to
+        packethook is provided, it must be a function that takes two
+        parameters, the first being a copy of each packet received in the
+        form of a TftpPacket object, and the second being the TftpContext
+        for this transfer, which can be inspected for more accurate statistics,
+        progress estimates and such. The timeout parameter may be used to
         override the default SOCK_TIMEOUT setting, which is the amount of time
         that the client will wait for a receive packet to arrive.
         The retires parameter may be used to override the default DEF_TIMEOUT_RETRIES
@@ -108,9 +110,11 @@ class TftpClient(TftpSession):
         """This method initiates a tftp upload to the configured remote host,
         uploading the filename passed. It reads the file from input, which
         can be a file-like object or a path to a local file. If a packethook
-        is provided, it must be a function that takes a single parameter,
-        which will be a copy of each DAT packet sent in the form of a
-        TftpPacketDAT object. The timeout parameter may be used to override
+        is provided, it must be a function that takes two parameters,
+        the first being a copy of each packet received in the form of
+        a TftpPacket object, and the second being the TftpContext for
+        this transfer, which can be inspected for more accurate statistics,
+        progress estimates, etc. The timeout parameter may be used to override
         the default SOCK_TIMEOUT setting, which is the amount of time that
         the client will wait for a DAT packet to be ACKd by the server.
         The retires parameter may be used to override the default DEF_TIMEOUT_RETRIES

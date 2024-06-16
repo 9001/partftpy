@@ -24,6 +24,9 @@ from .TftpPacketTypes import *
 from .TftpShared import *
 from .TftpStates import *
 
+if TYPE_CHECKING:
+    from typing import Optional
+
 log = logging.getLogger("partftpy.TftpContext")
 
 ###############################################################################
@@ -35,10 +38,13 @@ class TftpMetrics(object):
     """A class representing metrics of the transfer."""
 
     def __init__(self):
-        # Bytes transferred
+        # Set by context if available
+        self.tsize = 0
+        # Transfer counters
         self.bytes = 0
-        # Bytes re-sent
+        self.packets = 0
         self.resent_bytes = 0
+        self.resent_packets = 0
         # Duplicate packets received
         self.dups = {}
         self.dupcount = 0
@@ -134,7 +140,7 @@ class TftpContext(object):
         # FIXME: does this belong in metrics?
         self.last_update = 0
         # The last packet we sent, if applicable, to make resending easy.
-        self.last_pkt = None
+        self.last_pkt = None  # type: Optional[TftpPacket]
         # Count the number of retry attempts.
         self.retry_count = 0
         # Flag to signal timeout error when waiting for ACK of the current block
@@ -254,7 +260,7 @@ class TftpContext(object):
         # kinds of packets. This way, the client is privy to things like
         # negotiated options.
         if self.packethook:
-            self.packethook(recvpkt)
+            self.packethook(recvpkt, self)
 
         # And handle it, possibly changing state.
         self.state = self.state.handle(recvpkt, raddress, rport)
@@ -366,6 +372,10 @@ class TftpContextClientUpload(TftpContext):
         log.info("Sending tftp upload request to %s", self.host)
         log.info("    filename -> %s", self.file_to_transfer)
         log.info("    options -> %s", self.options)
+
+        tsize = self.options.get("tsize")
+        if tsize:
+            self.metrics.tsize = tsize
 
         self.metrics.start_time = time.time()
         log.debug("Set metrics.start_time to %s", self.metrics.start_time)

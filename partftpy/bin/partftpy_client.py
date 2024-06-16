@@ -6,11 +6,14 @@ import logging
 import os
 import socket
 import sys
+import threading
+import time
 from optparse import OptionParser
 
 import partftpy.TftpPacketTypes
 from partftpy.TftpClient import TftpClient
 from partftpy.TftpShared import TftpException
+from partftpy.TftpContexts import TftpContext
 
 log = logging.getLogger("partftpy")
 log.setLevel(logging.INFO)
@@ -112,17 +115,39 @@ def main():
 
     class Progress(object):
         def __init__(self, out):
-            self.progress = 0
-            self.pkts = 0
             self.out = out
+            self.metrics = None
+            self.thr = threading.Thread(target=self._print_progress)
+            self.thr.daemon = True
+            self.thr.start()
 
-        def progresshook(self, pkt):
+        def progresshook(self, pkt, ctx):
+            # type: (bytes, TftpContext) -> None
             if isinstance(pkt, partftpy.TftpPacketTypes.TftpPacketDAT):
-                self.pkts += 1
-                self.progress += len(pkt.data)
-                self.out("Transferred %d bytes, %d pkts" % (self.progress, self.pkts))
+                self.metrics = ctx.metrics
             elif isinstance(pkt, partftpy.TftpPacketTypes.TftpPacketOACK):
                 self.out("Received OACK, options are: %s" % pkt.options)
+
+        def _print_progress(self):
+            while True:
+                time.sleep(0.5)
+                if not self.metrics:
+                    continue
+                metrics = self.metrics
+                self.metrics = None
+
+                pkts = metrics.packets
+                nbytes = metrics.bytes
+                left = metrics.tsize - nbytes
+                if left < 0:
+                    self.out("Transferred %d pkts, %d bytes", pkts, nbytes)
+                else:
+                    self.out(
+                        "Transferred %d pkts, %d bytes, %d bytes left",
+                        pkts,
+                        nbytes,
+                        left,
+                    )
 
     if options.debug:
         log.setLevel(logging.DEBUG)
@@ -139,8 +164,11 @@ def main():
     tftp_options = {}
     if options.blksize:
         tftp_options["blksize"] = int(options.blksize)
-    if options.tsize:
+    if options.tsize and options.download:
         tftp_options["tsize"] = 0
+    if options.tsize and options.upload and options.input != "-":
+        fn = options.input or options.upload
+        tftp_options["tsize"] = os.path.getsize(fn)
 
     fam = socket.AF_INET6 if ":" in options.host else socket.AF_INET
 

@@ -21,6 +21,10 @@ import time
 from .TftpPacketTypes import *
 from .TftpShared import *
 
+if TYPE_CHECKING:
+    from .TftpContexts import TftpContext
+
+
 log = logging.getLogger("partftpy.TftpStates")
 
 ###############################################################################
@@ -35,7 +39,7 @@ class TftpState(object):
         """Constructor for setting up common instance variables. The involved
         file object is required, since in tftp there's always a file
         involved."""
-        self.context = context
+        self.context = context  # type: TftpContext
 
     def handle(self, pkt, raddress, rport):
         """An abstract method for handling a packet. It is expected to return
@@ -50,6 +54,9 @@ class TftpState(object):
                 log.info("Successful negotiation of options")
                 # Set options to OACK options
                 self.context.options = pkt.options
+                tsize = pkt.options.get("tsize")
+                if tsize:
+                    self.context.metrics.tsize = tsize
                 for k, v in self.context.options.items():
                     log.info("    %s = %s", k, v)
             else:
@@ -112,6 +119,7 @@ class TftpState(object):
         dat.data = buffer
         dat.blocknumber = blocknumber
         self.context.metrics.bytes += len(dat.data)
+        self.context.metrics.packets += 1
         # Testing hook
         if NETWORK_UNRELIABILITY > 0 and random.randrange(NETWORK_UNRELIABILITY) == 0:
             log.warning("Skipping DAT packet %d for testing", dat.blocknumber)
@@ -122,7 +130,7 @@ class TftpState(object):
             )
             self.context.metrics.last_dat_time = time.time()
         if self.context.packethook:
-            self.context.packethook(dat)
+            self.context.packethook(dat, self.context)
         self.context.last_pkt = dat
         return finished
 
@@ -175,6 +183,7 @@ class TftpState(object):
         assert self.context.last_pkt is not None
         log.warning("Resending packet %s on sessions %s", self.context.last_pkt, self)
         self.context.metrics.resent_bytes += len(self.context.last_pkt.buffer)
+        self.context.metrics.resent_packets += 1
         self.context.metrics.add_dup(self.context.last_pkt)
         sendto_port = self.context.tidport
         if not sendto_port:
@@ -186,9 +195,10 @@ class TftpState(object):
             self.context.last_pkt.encode().buffer, (self.context.host, sendto_port)
         )
         if self.context.packethook:
-            self.context.packethook(self.context.last_pkt)
+            self.context.packethook(self.context.last_pkt, self.context)
 
     def handleDat(self, pkt):
+        # type: (TftpPacket) -> TftpState
         """This method handles a DAT packet during a client download, or a
         server upload."""
         log.debug("Handling DAT packet - block %d", pkt.blocknumber)
@@ -202,6 +212,7 @@ class TftpState(object):
             log.debug("Writing %d bytes to output file", len(pkt.data))
             self.context.fileobj.write(pkt.data)
             self.context.metrics.bytes += len(pkt.data)
+            self.context.metrics.packets += 1
             # Check for end-of-file, any less than full data packet.
             if len(pkt.data) < self.context.options["blksize"]:
                 log.info("End of file detected")
@@ -354,6 +365,7 @@ class TftpStateServerRecvRRQ(TftpServerState):
             tsize = str(self.context.fileobj.tell())
             self.context.fileobj.seek(0, 0)
             self.context.options["tsize"] = tsize
+            self.context.metrics.tsize = tsize
 
         if sendoack:
             # Note, next_block is 0 here since that's the proper
